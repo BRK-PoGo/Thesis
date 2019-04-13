@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/tjwal/Documents/GitHub/Thesis/neuroph-2.94/neuroph-2.94/neuroph-core-2.94.jar"/>
+	<classpathentry kind="lib" path="C:/Users/tjwal/Documents/GitHub/Thesis/slf4j-1.7.26/slf4j-api-1.7.26.jar"/>
+	<classpathentry kind="lib" path="C:/Users/tjwal/Documents/GitHub/Thesis/slf4j-1.7.26/slf4j-simple-1.7.26.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
