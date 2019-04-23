@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.neuroph.core.*;
+import org.neuroph.core.data.DataSet;
 import org.neuroph.core.input.*;
 import org.neuroph.core.transfer.*;
 import org.neuroph.nnet.*;
@@ -107,6 +108,20 @@ public class Network {
 				neuron.setInputFunction(new WeightedSum());
 			}
 		}
+	}
+	
+	public double trainNetwork(DataSet trainingSet) {
+		double times = 100;
+		double total = 0;
+		//System.out.println("Begin training");
+		for (int i = 0; i < times; i++) {
+			network.learn(trainingSet);
+			total += network.getLearningRule().getCurrentIteration();
+			network.setWeights(getWeights());
+		}
+		//System.out.println("Done training");
+		double mean = total/times;
+		return mean;
 	}
 	
 	public BackPropagation getLearningRule(int iterations, double learningRate, double maxError) { //Get the learning rule for the network
