@@ -22,10 +22,19 @@ public class GA {
 	private int num_ins;
 	private int num_outs;
 	
-	private final int NUM_GENS = 100;
+	private final int NUM_GENS = 10;
 	
-	private final int[] BASE_LAYOUT = {1,1,0,1,1,0,0,0,1,0,0,1};
-	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,5);
+	private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
+	
+	//private final int[] BASE_LAYOUT = {1,1,1,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,1};
+	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,6);
+	
+	//private final int[] BASE_LAYOUT = {1,1,0,1,1,0,0,0,1,0,0,1};
+	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,5);
+	
+	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1};
+	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,4);
 	
 	private GA_Member[] population;
 	private GA_Member[] breeding;
@@ -46,10 +55,10 @@ public class GA {
 		breeding = new GA_Member[(int) (pop_size * BREEDING_SIZE)];
 		num_ins = inputs;
 		num_outs = outputs;
-		max_neurons = inputs*4; //max hidden neurons = three times the number of inputs
+		max_neurons = inputs*2; //max hidden neurons = two times the number of inputs
 		
 		for (int i = 0; i < pop_size; i++) {
-			int num_neurons = inputs + outputs + (int) (Math.random() * max_neurons);
+			int num_neurons = inputs + outputs + (int) (Math.random() * (max_neurons + 1));
 			population[i] = new GA_Member(randStr.genRanString(inputs, outputs, num_neurons),0.0,num_neurons);
 		}
 	}
@@ -118,6 +127,7 @@ public class GA {
 		//System.out.println("Network " + i + " of " + pop_size);
 		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),1000,0.2,0.01,problem);
 		double mean = network.trainNetwork(trainingSet);
+		mean = mean + network.testNetwork(trainingSet);
 		member.setFitness(mean);
 	}
 	

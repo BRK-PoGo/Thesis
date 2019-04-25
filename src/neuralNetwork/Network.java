@@ -1,11 +1,13 @@
 package neuralNetwork;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import org.neuroph.core.*;
 import org.neuroph.core.data.DataSet;
+import org.neuroph.core.data.DataSetRow;
 import org.neuroph.core.input.*;
 import org.neuroph.core.transfer.*;
 import org.neuroph.nnet.*;
@@ -122,6 +124,23 @@ public class Network {
 		//System.out.println("Done training");
 		double mean = total/times;
 		return mean;
+	}
+	
+	public double testNetwork(DataSet testSet) {
+		double accuracy = 0;
+		int correct = 0;
+		int total = 0;
+		for(DataSetRow dataRow : testSet.getRows()) {
+			total++;
+			network.setInput(dataRow.getInput());
+			network.calculate();
+			double[ ] networkOutput = network.getOutput();
+			if (networkOutput[0] == dataRow.getInput()[0]) {
+				correct++;
+			}
+		}
+		accuracy = 1000 * (correct/total);
+		return accuracy;
 	}
 	
 	public BackPropagation getLearningRule(int iterations, double learningRate, double maxError) { //Get the learning rule for the network
