@@ -4,6 +4,7 @@ import conversions.GridToString;
 import conversions.RandomString;
 import conversions.StringToGrid;
 import neuralNetwork.Network;
+import readers.MNIST_Reader;
 
 import java.util.ArrayList;
 import java.util.stream.IntStream;
@@ -23,9 +24,19 @@ public class GA {
 	private int num_outs;
 	
 	private final int NUM_GENS = 1;
+	private final int NUM_GENS = 10;
 	
-	private final int[] BASE_LAYOUT = {1,1,0,1,1,0,0,0,1,0,0,1};
-	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,5);
+	private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
+	
+	//private final int[] BASE_LAYOUT = {1,1,1,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,1};
+	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,6);
+	
+	//private final int[] BASE_LAYOUT = {1,1,0,1,1,0,0,0,1,0,0,1};
+	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,5);
+	
+	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1};
+	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,4);
 	
 	private GA_Member[] population;
 	private GA_Member[] breeding;
@@ -49,7 +60,7 @@ public class GA {
 		max_neurons = inputs*2; //max hidden neurons = two times the number of inputs
 		
 		for (int i = 0; i < pop_size; i++) {
-			int num_neurons = inputs + outputs + (int) (Math.random() * max_neurons);
+			int num_neurons = inputs + outputs + (int) (Math.random() * (max_neurons + 1));
 			population[i] = new GA_Member(randStr.genRanString(inputs, outputs, num_neurons),0.0,num_neurons);
 		}
 	}
@@ -111,14 +122,43 @@ public class GA {
 	
 	public void train(GA_Member member) {
 		DataSet trainingSet = new DataSet(num_ins, num_outs);
-		trainingSet.addRow(new DataSetRow(new double[]{0, 0}, new double[]{0}));
-		trainingSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
-		trainingSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
-		trainingSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
-		//System.out.println("Network " + i + " of " + pop_size);
-		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),1000,0.2,0.01,problem);
+		DataSet testSet = new DataSet(num_ins, num_outs);
+		int iterations = 0;
+		double error = 0;
+		double learningRate = 0;
+		if (problem.equals("XOR")) {
+			trainingSet.addRow(new DataSetRow(new double[]{0, 0}, new double[]{0}));
+			trainingSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
+			trainingSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
+			trainingSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
+			testSet = trainingSet;
+			iterations = 2000;
+			error = 0.01;
+			learningRate = 0.2;
+		} else if (problem.equals("horse")) {
+			
+		} else if (problem.equals("MNIST")) {
+			MNIST_Reader reader = new MNIST_Reader();
+			double[][][] dataset = reader.Run("train");
+			double[][] data = dataset[0];
+			double[][] labels = dataset[1];
+			for (int i = 0; i < data.length; i++) {
+				trainingSet.addRow(new DataSetRow(data[i], labels[i]));
+			}
+			dataset = reader.Run("test");
+			data = dataset[0];
+			labels = dataset[1];
+			for (int i = 0; i < data.length; i++) {
+				testSet.addRow(new DataSetRow(data[i], labels[i]));
+			}
+			iterations = 2000;
+			error = 0.01;
+			learningRate = 0.1;
+		}
+		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem);
 		double mean = network.trainNetwork(trainingSet);
-		member.setFitness(mean);
+		double accuracy = network.testNetwork(testSet);
+		member.setFitness(mean + accuracy);
 	}
 	
 	public void breed(int i) {

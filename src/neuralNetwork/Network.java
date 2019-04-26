@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.neuroph.core.*;
 import org.neuroph.core.data.DataSet;
+import org.neuroph.core.data.DataSetRow;
 import org.neuroph.core.input.*;
 import org.neuroph.core.transfer.*;
 import org.neuroph.nnet.*;
@@ -22,6 +23,8 @@ public class Network {
 	private final double MAX_INIT_WEIGHT = 0.05;
 	private final double MIN_INIT_WEIGHT = -0.05;
 	
+	private int iterations;
+	
 	private int paths = 0;
 	
 	private Random r = new Random();
@@ -34,6 +37,7 @@ public class Network {
 		num_ins = ins;
 		num_outs = outs;
 		num_neurons = connections.length;
+		iterations = numIterations;
 		
 		//Build initial network, remove initial connections and add learning rule
 		NeuronProperties props = new NeuronProperties(TransferFunctionType.SIGMOID, false);
@@ -122,6 +126,23 @@ public class Network {
 		//System.out.println("Done training");
 		double mean = total/times;
 		return mean;
+	}
+	
+	public double testNetwork(DataSet testSet) {
+		double accuracy = 0;
+		int correct = 0;
+		int total = 0;
+		for(DataSetRow dataRow : testSet.getRows()) {
+			total++;
+			network.setInput(dataRow.getInput());
+			network.calculate();
+			double[ ] networkOutput = network.getOutput();
+			if (networkOutput[0] == dataRow.getInput()[0]) {
+				correct++;
+			}
+		}
+		accuracy = iterations * (correct/total);
+		return accuracy;
 	}
 	
 	public BackPropagation getLearningRule(int iterations, double learningRate, double maxError) { //Get the learning rule for the network
