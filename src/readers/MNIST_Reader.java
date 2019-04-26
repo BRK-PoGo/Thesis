@@ -8,17 +8,23 @@ import java.util.ArrayList;
 
 public class MNIST_Reader {
 
-	private String csvPath = "fashion-mnist_test_mini.csv";	
+	private String csvPathTrain = "fashion-mnist_test_mini.csv"; //need to fix this
+	private String csvPathTest = "fashion-mnist_test_mini.csv";	//need to fix this
 	private String line = "";
 	private String splitBy = ",";
 	private BufferedReader br = null;
 	private ArrayList<Double[]> data = new ArrayList<Double[]>();
 	private ArrayList<Double[]> labels = new ArrayList<Double[]>();
 	private Double maxVal = 255.0;
+	double[][][] dataset = null;
 		
-	public void Run() {
+	public double[][][] Run(String type) {
 		try {
-            br = new BufferedReader(new FileReader(csvPath));
+			if (type.equals("train")) {
+				br = new BufferedReader(new FileReader(csvPathTrain));
+			} else if (type.equals("test")) {
+				br = new BufferedReader(new FileReader(csvPathTest));
+			}
             while ((line = br.readLine()) != null) {
                 String[] pixels = line.split(splitBy);
                 Double[] newData = new Double[pixels.length - 1];
@@ -36,20 +42,10 @@ public class MNIST_Reader {
                 }
                 data.add(newData);
             }
-            System.out.println("data");
-            for (Double[] pixels : data) {
-            	for (Double pixel : pixels) {
-            		System.out.print(pixel + " ");
-            	}
-            	System.out.println();
-            }
-            System.out.println("labels");
-            for (Double[] labels : labels) {
-            	for (Double label : labels) {
-            		System.out.print(label + " ");
-            	}
-            	System.out.println();
-            }
+            double[][] dataArray = (double[][]) data.toArray();
+            double[][] labelArray = (double[][]) labels.toArray();
+            double[][][] dataset_tmp = {dataArray, labelArray};
+            dataset = dataset_tmp;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -63,5 +59,6 @@ public class MNIST_Reader {
                 }
             }
         }
+		return dataset;
 	}
 }

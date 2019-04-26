@@ -1,7 +1,6 @@
 package neuralNetwork;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -24,6 +23,8 @@ public class Network {
 	private final double MAX_INIT_WEIGHT = 0.05;
 	private final double MIN_INIT_WEIGHT = -0.05;
 	
+	private int iterations;
+	
 	private int paths = 0;
 	
 	private Random r = new Random();
@@ -36,6 +37,7 @@ public class Network {
 		num_ins = ins;
 		num_outs = outs;
 		num_neurons = connections.length;
+		iterations = numIterations;
 		
 		//Build initial network, remove initial connections and add learning rule
 		NeuronProperties props = new NeuronProperties(TransferFunctionType.SIGMOID, false);
@@ -139,7 +141,7 @@ public class Network {
 				correct++;
 			}
 		}
-		accuracy = 1000 * (correct/total);
+		accuracy = iterations * (correct/total);
 		return accuracy;
 	}
 	

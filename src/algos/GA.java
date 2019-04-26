@@ -4,6 +4,7 @@ import conversions.GridToString;
 import conversions.RandomString;
 import conversions.StringToGrid;
 import neuralNetwork.Network;
+import readers.MNIST_Reader;
 
 import java.util.ArrayList;
 import java.util.stream.IntStream;
@@ -120,15 +121,43 @@ public class GA {
 	
 	public void train(GA_Member member) {
 		DataSet trainingSet = new DataSet(num_ins, num_outs);
-		trainingSet.addRow(new DataSetRow(new double[]{0, 0}, new double[]{0}));
-		trainingSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
-		trainingSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
-		trainingSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
-		//System.out.println("Network " + i + " of " + pop_size);
-		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),1000,0.2,0.01,problem);
+		DataSet testSet = new DataSet(num_ins, num_outs);
+		int iterations = 0;
+		double error = 0;
+		double learningRate = 0;
+		if (problem.equals("XOR")) {
+			trainingSet.addRow(new DataSetRow(new double[]{0, 0}, new double[]{0}));
+			trainingSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
+			trainingSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
+			trainingSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
+			testSet = trainingSet;
+			iterations = 2000;
+			error = 0.01;
+			learningRate = 0.2;
+		} else if (problem.equals("horse")) {
+			
+		} else if (problem.equals("MNIST")) {
+			MNIST_Reader reader = new MNIST_Reader();
+			double[][][] dataset = reader.Run("train");
+			double[][] data = dataset[0];
+			double[][] labels = dataset[1];
+			for (int i = 0; i < data.length; i++) {
+				trainingSet.addRow(new DataSetRow(data[i], labels[i]));
+			}
+			dataset = reader.Run("test");
+			data = dataset[0];
+			labels = dataset[1];
+			for (int i = 0; i < data.length; i++) {
+				testSet.addRow(new DataSetRow(data[i], labels[i]));
+			}
+			iterations = 2000;
+			error = 0.01;
+			learningRate = 0.1;
+		}
+		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem);
 		double mean = network.trainNetwork(trainingSet);
-		mean = mean + network.testNetwork(trainingSet);
-		member.setFitness(mean);
+		double accuracy = network.testNetwork(testSet);
+		member.setFitness(mean + accuracy);
 	}
 	
 	public void breed(int i) {
