@@ -22,7 +22,7 @@ public class GA {
 	private int num_ins;
 	private int num_outs;
 	
-	private final int NUM_GENS = 100;
+	private final int NUM_GENS = 1;
 	
 	private final int[] BASE_LAYOUT = {1,1,0,1,1,0,0,0,1,0,0,1};
 	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,5);
@@ -46,7 +46,7 @@ public class GA {
 		breeding = new GA_Member[(int) (pop_size * BREEDING_SIZE)];
 		num_ins = inputs;
 		num_outs = outputs;
-		max_neurons = inputs*4; //max hidden neurons = three times the number of inputs
+		max_neurons = inputs*2; //max hidden neurons = two times the number of inputs
 		
 		for (int i = 0; i < pop_size; i++) {
 			int num_neurons = inputs + outputs + (int) (Math.random() * max_neurons);
