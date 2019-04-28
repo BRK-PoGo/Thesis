@@ -6,8 +6,8 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="E:/Documents/GitHub/Thesis/neuroph-2.94/neuroph-2.94/neuroph-core-2.94.jar"/>
-	<classpathentry kind="lib" path="E:/Documents/GitHub/Thesis/slf4j-1.7.26/slf4j-api-1.7.26.jar"/>
-	<classpathentry kind="lib" path="E:/Documents/GitHub/Thesis/slf4j-1.7.26/slf4j-simple-1.7.26.jar"/>
+	<classpathentry kind="lib" path="neuroph-2.94/neuroph-2.94/neuroph-core-2.94.jar"/>
+	<classpathentry kind="lib" path="slf4j-1.7.26/slf4j-simple-1.7.26.jar"/>
+	<classpathentry kind="lib" path="slf4j-1.7.26/slf4j-api-1.7.26.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
