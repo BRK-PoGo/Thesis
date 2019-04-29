@@ -22,8 +22,8 @@ public class MNIST_Reader {
 		
 	public double[][][] Run(String type) {
 		try {
+			System.out.println("Loading data " + type);
 			if (type.equals("train")) {
-				System.out.println("train");
 				FileReader fr = new FileReader(csvPathTrain);
 				nr = new LineNumberReader(fr);
 				while (nr.skip(Long.MAX_VALUE) > 0) {
@@ -33,22 +33,19 @@ public class MNIST_Reader {
 				fr = new FileReader(csvPathTrain);
 				br = new BufferedReader(fr);
 			} else if (type.equals("test")) {
-				System.out.println("test");
 				FileReader fr = new FileReader(csvPathTest);
 				nr = new LineNumberReader(fr);
 				while (nr.skip(Long.MAX_VALUE) > 0) {
 				      // Loop just in case the file is > Long.MAX_VALUE or skip() decides to not read the entire file
 				}
 				numLines = nr.getLineNumber();
-				fr = new FileReader(csvPathTrain);
+				fr = new FileReader(csvPathTest);
 				br = new BufferedReader(fr);
 			}
-			System.out.println(numLines);
 			data = new double[numLines][0];
 			labels = new double[numLines][0];
 			int ctr = 0;
             while ((line = br.readLine()) != null) {
-            	System.out.println(ctr);
                 String[] pixels = line.split(splitBy);
                 double[] newData = new double[pixels.length - 1];
                 for (int i = 0; i < pixels.length; i++) {               	

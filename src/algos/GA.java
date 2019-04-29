@@ -25,8 +25,8 @@ public class GA {
 	
 	private final int NUM_GENS = 1;
 	
-	private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
-	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
+	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
 	
 	//private final int[] BASE_LAYOUT = {1,1,1,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,1};
 	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,6);
@@ -92,8 +92,8 @@ public class GA {
 			for (int i = 0; i < data.length; i++) {
 				testSet.addRow(new DataSetRow(data[i], labels[i]));
 			}
-			iterations = 2000;
-			error = 0.01;
+			iterations = 1;
+			error = 1;
 			learningRate = 0.1;
 		}
 		
@@ -119,12 +119,12 @@ public class GA {
 			population = newpop;
 		}
 		System.out.println();
-		train(baseMember);
+		//train(baseMember);
 		GA_Member bestMember = bestMembers[0];
-		System.out.println("Ideal had fitness " + baseMember.getFitness());
-		for (int gene : baseMember.getGene()) {
-			System.out.print(gene + " ");
-		}
+		//System.out.println("Ideal had fitness " + baseMember.getFitness());
+		//for (int gene : baseMember.getGene()) {
+			//System.out.print(gene + " ");
+		//}
 		System.out.println();
 		for (int i = 0; i < NUM_GENS; i++) {
 			if (bestMembers[i].getFitness() < bestMember.getFitness()) bestMember = bestMembers[i];
@@ -159,10 +159,9 @@ public class GA {
 	}
 	
 	public void train(GA_Member member) {
-		DataSet trainingSet = new DataSet(num_ins, num_outs);
-		DataSet testSet = new DataSet(num_ins, num_outs);
 		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem);
 		double mean = network.trainNetwork(trainingSet);
+		System.out.println("test size " + testSet.size());
 		double accuracy = network.testNetwork(testSet);
 		member.setFitness(mean + accuracy);
 	}
