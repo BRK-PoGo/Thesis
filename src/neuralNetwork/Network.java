@@ -132,7 +132,6 @@ public class Network {
 		double accuracy = 0;
 		int correct = 0;
 		int total = 0;
-		System.out.println("test size in network " + testSet.size());
 		for(DataSetRow dataRow : testSet.getRows()) {
 			total++;
 			network.setInput(dataRow.getInput());
@@ -142,7 +141,6 @@ public class Network {
 				correct++;
 			}
 		}
-		System.out.println(total);
 		accuracy = iterations * (correct/total);
 		return accuracy;
 	}
