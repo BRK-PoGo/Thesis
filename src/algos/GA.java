@@ -25,8 +25,8 @@ public class GA {
 	
 	private final int NUM_GENS = 20;
 	
-	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
-	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
+	private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
 	
 	//private final int[] BASE_LAYOUT = {1,1,1,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,1};
 	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,6);
@@ -34,8 +34,8 @@ public class GA {
 	//private final int[] BASE_LAYOUT = {1,1,0,1,1,0,0,0,1,0,0,1};
 	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,5);
 	
-	private final int[] BASE_LAYOUT = {1,1,1,1,0,1};
-	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,4);
+	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1};
+	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,4);
 	
 	private GA_Member[] population;
 	private GA_Member[] breeding;
@@ -124,7 +124,7 @@ public class GA {
 		System.out.println();
 		train(baseMember);
 		GA_Member bestMember = bestMembers[0];
-		System.out.println("Base had fitness " + baseMember.getFitness());
+		System.out.println("Ideal had fitness " + baseMember.getFitness());
 		for (int gene : baseMember.getGene()) {
 			System.out.print(gene + " ");
 		}

@@ -6,6 +6,9 @@ public class Run {
 
 	public static void main(String[] args) {
 		GA ga = new GA(100, 2, 1, "XOR");
+		Problem problem = new XOR();
+		//Problem problem = new MNIST();
+		GA ga = new GA(1000, problem.getInputs(), problem.getOutputs(), problem.getProblem());
 		//ga.printPop();
 		long start = System.nanoTime();
 		ga.testNetworks();
