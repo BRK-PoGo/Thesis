@@ -23,10 +23,10 @@ public class GA {
 	private int num_ins;
 	private int num_outs;
 	
-	private final int NUM_GENS = 1;
+	private final int NUM_GENS = 10;
 	
-	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
-	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
+	private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
 	
 	//private final int[] BASE_LAYOUT = {1,1,1,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,1};
 	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,6);
@@ -105,6 +105,7 @@ public class GA {
 	
 	public void testNetworks() {
 		for (int x = 0; x < NUM_GENS; x++) {
+			long start = System.nanoTime();
 			System.out.println("Gen " + x);
 			System.out.println("Training members");
 			IntStream.range(0,population.length).parallel().forEach((int i) -> train(population[i]));
@@ -117,14 +118,15 @@ public class GA {
 			System.out.println("Breeding new members");
 			IntStream.rangeClosed((int) ((pop_size*PASS_OVER)/2),(pop_size/2)-1).parallel().map((int i)->i*2).forEach(this::breed);
 			population = newpop;
+			System.out.println("gen " + x  + " took " + (System.nanoTime() - start)/1000000000 + "s");
 		}
 		System.out.println();
-		//train(baseMember);
+		train(baseMember);
 		GA_Member bestMember = bestMembers[0];
-		//System.out.println("Ideal had fitness " + baseMember.getFitness());
-		//for (int gene : baseMember.getGene()) {
-			//System.out.print(gene + " ");
-		//}
+		System.out.println("Ideal had fitness " + baseMember.getFitness());
+		for (int gene : baseMember.getGene()) {
+			System.out.print(gene + " ");
+		}
 		System.out.println();
 		for (int i = 0; i < NUM_GENS; i++) {
 			if (bestMembers[i].getFitness() < bestMember.getFitness()) bestMember = bestMembers[i];
@@ -161,7 +163,6 @@ public class GA {
 	public void train(GA_Member member) {
 		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem);
 		double mean = network.trainNetwork(trainingSet);
-		System.out.println("test size " + testSet.size());
 		double accuracy = network.testNetwork(testSet);
 		member.setFitness(mean + accuracy);
 	}
