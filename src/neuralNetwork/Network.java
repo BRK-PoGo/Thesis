@@ -117,13 +117,11 @@ public class Network {
 	public double trainNetwork(DataSet trainingSet) {
 		double times = 100;
 		double total = 0;
-		//System.out.println("Begin training");
 		for (int i = 0; i < times; i++) {
 			network.learn(trainingSet);
 			total += network.getLearningRule().getCurrentIteration();
 			network.setWeights(getWeights());
 		}
-		//System.out.println("Done training");
 		double mean = total/times;
 		return mean;
 	}
@@ -137,11 +135,17 @@ public class Network {
 			network.setInput(dataRow.getInput());
 			network.calculate();
 			double[ ] networkOutput = network.getOutput();
-			if (networkOutput[0] == dataRow.getInput()[0]) {
+			int check = 0;
+			for (int i = 0; i < networkOutput.length; i++) {
+				if (networkOutput[i] == dataRow.getInput()[i]) {
+					check++;
+				}
+			}
+			if (check == networkOutput.length) {
 				correct++;
 			}
 		}
-		accuracy = iterations * (correct/total);
+		accuracy = iterations * (1-(correct/total));
 		return accuracy;
 	}
 	

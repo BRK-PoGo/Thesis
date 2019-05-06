@@ -4,30 +4,43 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.LineNumberReader;
 
-public class Horse_Reader {
+public class HORSE_Reader {
 	
 	private String csvPath = "horse.csv";	
 	private String line = "";
 	private String splitBy = ",";
 	private BufferedReader br = null;
-	private ArrayList<Double[]> data = new ArrayList<Double[]>();
-	private ArrayList<Double[]> labels = new ArrayList<Double[]>();
+	private LineNumberReader nr = null;
+	private int numLines = 0;
+	private double[][] data;
+	private double[][] labels;
+	double[][][] dataset = null;
 
-	public void Run() {
+	public double[][][] Run() {
 		try {
-            br = new BufferedReader(new FileReader(csvPath));
+			FileReader fr = new FileReader(csvPath);
+			nr = new LineNumberReader(fr);
+			while (nr.skip(Long.MAX_VALUE) > 0) {
+			      // Loop just in case the file is > Long.MAX_VALUE or skip() decides to not read the entire file
+			}
+			numLines = nr.getLineNumber();
+			fr = new FileReader(csvPath);
+			br = new BufferedReader(fr);
+			data = new double[numLines][0];
+			labels = new double[numLines][0];
+			int ctr = 0;
             while ((line = br.readLine()) != null) {
                 String[] info = line.split(splitBy);
-                Double[] newData = new Double[info.length - 1];
-                Double[] newLabel = new Double[3];
+                double[] newData = new double[info.length - 1];
+                double[] newLabel = new double[3];
                 for (int i = 0; i < info.length; i++) { //EDA pre-processing           	
                 	if (i == 0) { //age
                 		if (info[i].equals("adult")) {
                 			newData[i] = 1.0;
                 		} else {
-                			newData[i] = 0.0;
+                			newData[i] = 0.5;
                 		}
                 	} else if (i == 1) { //rectal_temp
                 		if (info[i].equals("NA")) {
@@ -62,7 +75,7 @@ public class Horse_Reader {
                 			newData[i] = 0.0;
                 		} else if (info[i].equals("increased")) {
                 			newData[i] = 0.33;
-                		} else if (info[i].equals("decreased")) {
+                		} else if (info[i].equals("reduced")) {
                 			newData[i] = 0.66;
                 		} else if (info[i].equals("absent")) {
                 			newData[i] = 1.0;
@@ -146,7 +159,7 @@ public class Horse_Reader {
                 			newData[i] = 0.0;
                 		} else if (info[i].equals("increased")) {
                 			newData[i] = 0.33;
-                		} else if (info[i].equals("reduced")) {
+                		} else if (info[i].equals("decreased")) {
                 			newData[i] = 0.66;
                 		} else if (info[i].equals("absent")) {
                 			newData[i] = 1.0;
@@ -159,6 +172,8 @@ public class Horse_Reader {
                 		} else if (info[i].equals("firm")) {
                 			newData[i] = 0.5;
                 		} else if (info[i].equals("distend_small")) {
+                			newData[i] = 0.75;
+                		} else if (info[i].equals("distend_large")) {
                 			newData[i] = 1.0;
                 		} 
                 	} else if (i == 16) { //packed_cell_volume
@@ -187,7 +202,7 @@ public class Horse_Reader {
                 		} else {
                 			newData[i] = (double) (Double.valueOf(info[i]) - 0.1)/10;
                 		}
-                	} else if (i == 19) { //outcome
+                	} else if (i == 20) { //outcome
                 		if (info[i].equals("lived")) {
                 			newLabel[0] = 1.0;
                 			newLabel[1] = 0.0;
@@ -203,23 +218,12 @@ public class Horse_Reader {
                 		}
                 	}
                 }
-                data.add(newData);
-                labels.add(newLabel);
+                data[ctr] = newData;
+                labels[ctr] = newLabel;
+                ctr++;
             }
-            System.out.println("data");
-            for (Double[] pixels : data) {
-            	for (Double pixel : pixels) {
-            		System.out.print(pixel + " ");
-            	}
-            	System.out.println();
-            }
-            System.out.println("labels");
-            for (Double[] labels : labels) {
-            	for (Double label : labels) {
-            		System.out.print(label + " ");
-            	}
-            	System.out.println();
-            }
+            double[][][] dataset_tmp = {data, labels};
+            dataset = dataset_tmp;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -233,5 +237,6 @@ public class Horse_Reader {
                 }
             }
         }
+		return dataset;
 	}
 }

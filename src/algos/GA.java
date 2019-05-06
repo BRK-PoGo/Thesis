@@ -4,7 +4,7 @@ import conversions.GridToString;
 import conversions.RandomString;
 import conversions.StringToGrid;
 import neuralNetwork.Network;
-import readers.MNIST_Reader;
+import readers.*;
 
 import java.util.ArrayList;
 import java.util.stream.IntStream;
@@ -67,6 +67,7 @@ public class GA {
 		trainingSet = new DataSet(num_ins, num_outs);
 		testSet = new DataSet(num_ins, num_outs);
 		if (problem.equals("XOR")) {
+			System.out.println("xor");
 			trainingSet.addRow(new DataSetRow(new double[]{0, 0}, new double[]{0}));
 			trainingSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
 			trainingSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
@@ -75,8 +76,22 @@ public class GA {
 			iterations = 2000;
 			error = 0.01;
 			learningRate = 0.2;
-		} else if (problem.equals("horse")) {
-			
+		} else if (problem.equals("HORSE")) {
+			System.out.println("horse");
+			HORSE_Reader reader = new HORSE_Reader();
+			double[][][] dataset = reader.Run();
+			double[][] data = dataset[0];
+			double[][] labels = dataset[1];
+			for (int i = 0; i < data.length; i++) {
+				if (i%3 == 0) {
+					testSet.addRow(new DataSetRow(data[i], labels[i]));
+				} else {
+					trainingSet.addRow(new DataSetRow(data[i], labels[i]));
+				}
+			}
+			iterations = 1000;
+			error = 1;
+			learningRate = 0.2;
 		} else if (problem.equals("MNIST")) {
 			System.out.println("MNIST");
 			MNIST_Reader reader = new MNIST_Reader();
@@ -96,9 +111,11 @@ public class GA {
 			error = 1;
 			learningRate = 0.1;
 		}
-		
 		for (int i = 0; i < pop_size; i++) {
-			int num_neurons = inputs + outputs;
+			double randomDouble = Math.random();
+			randomDouble = randomDouble * (max_neurons + 1);
+			int hidden_neurons = (int) randomDouble;
+			int num_neurons = inputs + outputs + hidden_neurons;
 			population[i] = new GA_Member(randStr.genRanString(inputs, outputs, num_neurons),0.0,num_neurons);
 			//population[i] = new GA_Member(new int[]{1,1,1,1,0,1},0.0,4);
 		}
