@@ -9,6 +9,8 @@ public class XOR implements Problem {
 	private final double ERROR = 0.1;
 	private final double LEARNING_RATE = 0.5;
 	private final double MOMENTUM = 0.1;
+	private final int[] BASE_MEMBER = {1,1,1,1,0,1};
+	private final int BASE_MEMBER_NEURON = 4;
 
 
 	@Override
@@ -44,6 +46,16 @@ public class XOR implements Problem {
 	@Override
 	public double getMomentum() {
 		return MOMENTUM;
+	}
+
+	@Override
+	public int[] getBaseMember() {
+		return BASE_MEMBER;
+	}
+
+	@Override
+	public int getBaseMemberNeurons() {
+		return BASE_MEMBER_NEURON;
 	}
 
 }

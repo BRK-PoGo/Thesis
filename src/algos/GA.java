@@ -26,17 +26,7 @@ public class GA {
 	
 	private final int NUM_GENS = 10;
 	
-	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
-	//private Member baseMember = new Member(BASE_LAYOUT,0.0,7);
-	
-	//private final int[] BASE_LAYOUT = {1,1,1,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,1};
-	//private Member baseMember = new Member(BASE_LAYOUT,0.0,6);
-	
-	//private final int[] BASE_LAYOUT = {1,1,0,1,1,0,0,0,1,0,0,1};
-	//private Member baseMember = new Member(BASE_LAYOUT,0.0,5);
-	
-	private final int[] BASE_LAYOUT = {1,1,1,1,0,1};
-	private Member baseMember = new Member(BASE_LAYOUT,0.0,4);
+	private Member baseMember;
 	
 	private Member[] population;
 	private Member[] breeding;
@@ -57,6 +47,7 @@ public class GA {
 	private double momentum = 0;
 	
 	public GA(int pop_size, Problem problem) {
+		baseMember = new Member(problem.getBaseMember(),0.0,problem.getBaseMemberNeurons());
 		this.problem = problem.getProblem();
 		this.pop_size = pop_size;
 		population =  new Member[pop_size];
@@ -132,11 +123,11 @@ public class GA {
 			long start = System.nanoTime();
 			System.out.println("Gen " + x);
 			System.out.println("Training members");
-			IntStream.range(0,population.length).forEach((int i) -> train(population[i],i));
+			IntStream.range(0,population.length).parallel().forEach((int i) -> train(population[i],i));
 			population = sortCollection(population);
 			bestMembers[x] = population[0];
 			getBreedingSet();
-			for (int i = 0; i < (int) (pop_size * BREEDING_SIZE); i++) {
+			for (int i = 0; i < (int) (pop_size * PASS_OVER); i++) {
 				newpop[i] = population[i];
 			}
 			System.out.println("Breeding new members");
@@ -190,11 +181,6 @@ public class GA {
 		double mean = network.trainNetwork(trainingSet);
 		double accuracy = network.testNetwork(testSet);
 		member.setFitness(mean + accuracy);
-		System.out.println("member " + i);
-		System.out.println("mean " + mean);
-		System.out.println("accuracy " + accuracy);
-		System.out.println("fitness calc " + (mean+accuracy));
-		System.out.println("fitness stored " + member.getFitness());
 	}
 	
 	public void breed(int i) {
@@ -252,13 +238,13 @@ public class GA {
 			child1[i] = gene1[i];
 		}
 		//Mutation of for adding or removing connections or adding neurons
-		for (int i = 0; i < gene0.length; i++) {
+		for (int i = 0; i < child0.length; i++) {
 			if (Math.random() < MUTATION_RATE) {
-				if (gene0[i] == 0) {
-					gene0[i] = 1;
+				if (child0[i] == 0) {
+					child0[i] = 1;
 				} else {
 					if (Math.random() < 0.5) {
-						gene0[i] = 0;
+						child0[i] = 0;
 					} else {
 						if (child0_neurons < num_ins + num_outs + max_neurons) {
 							int[][] grid0 = S2G.getGrid(num_ins, num_outs, child0_neurons, child0);
@@ -283,13 +269,13 @@ public class GA {
 				}
 			}
 		}
-		for (int i = 0; i < gene1.length; i++) {
+		for (int i = 0; i < child1.length; i++) {
 			if (Math.random() < MUTATION_RATE) {
-				if (gene1[i] == 0) {
-					gene1[i] = 1;
+				if (child1[i] == 0) {
+					child1[i] = 1;
 				} else {
 					if (Math.random() < 0.5) {
-						gene1[i] = 0;
+						child1[i] = 0;
 					} else {
 						if (child1_neurons < num_ins + num_outs + max_neurons) {
 							int[][] grid1 = S2G.getGrid(num_ins, num_outs, child1_neurons, child1);

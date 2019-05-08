@@ -46,4 +46,16 @@ public class HORSE implements Problem {
 		return MOMENTUM;
 	}
 
+	@Override
+	public int[] getBaseMember() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getBaseMemberNeurons() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

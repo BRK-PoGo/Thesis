@@ -9,4 +9,6 @@ public interface Problem {
 	public double getError();
 	public double getLearningRate();
 	public double getMomentum();
+	public int[] getBaseMember();
+	public int getBaseMemberNeurons();
 }

@@ -1,17 +1,19 @@
 package main;
 
-import algos.GA;
+import algos.*;
 import problems.*;
 
 public class Run {
 
 	public static void main(String[] args) {
-		//Problem problem = new XOR();
+		int pop = 1000;
+		Problem problem = new XOR();
 		//Problem problem = new MNIST();
-		Problem problem = new HORSE();
-		GA ga = new GA(100, problem);
+		//Problem problem = new HORSE();
+		//GA algo = new GA(pop, problem);
+		EP algo = new EP(pop, problem);
 		long start = System.nanoTime();
-		ga.testNetworks();
+		algo.testNetworks();
 		System.out.println("took " + (System.nanoTime() - start)/1000000000 + "s");
 	}
 }

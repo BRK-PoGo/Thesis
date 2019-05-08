@@ -23,7 +23,7 @@ public class Network {
 	private final double MAX_INIT_WEIGHT = 0.05;
 	private final double MIN_INIT_WEIGHT = -0.05;
 	
-	private int iterations;
+	private double iterations;
 	
 	private int paths = 0;
 	
@@ -31,7 +31,7 @@ public class Network {
 	
 	private NeuralNetwork<BackPropagation> network;
 	
-	public Network(Integer ins, Integer outs, int[][] connections, int numIterations, double learningRate, double maxError, String problem, double momentum) {
+	public Network(Integer ins, Integer outs, int[][] connections, double numIterations, double learningRate, double maxError, String problem, double momentum) {
 		
 		//Define parameters
 		num_ins = ins;
@@ -157,10 +157,10 @@ public class Network {
 		return accuracy;
 	}
 	
-	public BackPropagation getLearningRule(int iterations, double learningRate, double maxError, double momentum) { //Get the learning rule for the network
+	public BackPropagation getLearningRule(double iterations, double learningRate, double maxError, double momentum) { //Get the learning rule for the network
 		MomentumBackpropagation learningRule = new MomentumBackpropagation();
 		learningRule.setLearningRate(learningRate);
-		learningRule.setMaxIterations(iterations);
+		learningRule.setMaxIterations((int)iterations);
 		learningRule.setMaxError(maxError);
 		learningRule.setMomentum(momentum);
 		return learningRule;
