@@ -1,12 +1,12 @@
 package algos;
 
-public class GA_Member {
+public class Member {
 
 	private int[] gene;
 	private double fitness;
 	private int neurons;
 	
-	public GA_Member(int[] gene, double fitness, int neurons) {
+	public Member(int[] gene, double fitness, int neurons) {
 		this.gene = gene;
 		this.fitness = fitness;
 		this.neurons = neurons;

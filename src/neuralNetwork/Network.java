@@ -31,7 +31,7 @@ public class Network {
 	
 	private NeuralNetwork<BackPropagation> network;
 	
-	public Network(Integer ins, Integer outs, int[][] connections, int numIterations, double learningRate, double maxError, String problem) {
+	public Network(Integer ins, Integer outs, int[][] connections, int numIterations, double learningRate, double maxError, String problem, double momentum) {
 		
 		//Define parameters
 		num_ins = ins;
@@ -45,7 +45,9 @@ public class Network {
 		network = new MultiLayerPerceptron(inits,props);
 		network.getLayerAt(0).addNeuron(new BiasNeuron());
 		removeConnections(network);
-		network.setLearningRule(getLearningRule(numIterations, learningRate, maxError));
+		BackPropagation learningRule = getLearningRule(numIterations, learningRate, maxError, momentum);
+		network.setLearningRule(learningRule);
+		learningRule.setNeuralNetwork(network);
 		
 		//Define main layer and add it
 		Layer mainLayer = new Layer();
@@ -118,9 +120,9 @@ public class Network {
 		double times = 100;
 		double total = 0;
 		for (int i = 0; i < times; i++) {
+			network.setWeights(getWeights());
 			network.learn(trainingSet);
 			total += network.getLearningRule().getCurrentIteration();
-			network.setWeights(getWeights());
 		}
 		double mean = total/times;
 		return mean;
@@ -128,32 +130,39 @@ public class Network {
 	
 	public double testNetwork(DataSet testSet) {
 		double accuracy = 0;
-		int correct = 0;
-		int total = 0;
+		double correct = 0;
+		double total = 0;
 		for(DataSetRow dataRow : testSet.getRows()) {
 			total++;
 			network.setInput(dataRow.getInput());
 			network.calculate();
-			double[ ] networkOutput = network.getOutput();
-			int check = 0;
-			for (int i = 0; i < networkOutput.length; i++) {
-				if (networkOutput[i] == dataRow.getInput()[i]) {
-					check++;
+			double[] networkOutput = network.getOutput();
+			double[] desiredOutput = dataRow.getDesiredOutput();
+			if (networkOutput.length > 1) {
+				int networkOutputIndex = 0;
+				int desiredOutputIndex = 0;
+				for (int i = 0; i < networkOutput.length; i++) {
+					networkOutputIndex = networkOutput[i] > networkOutput[networkOutputIndex] ? i : networkOutputIndex;
 				}
+				for (int i = 0; i < desiredOutput.length; i++) {
+					desiredOutputIndex = desiredOutput[i] > desiredOutput[desiredOutputIndex] ? i : desiredOutputIndex;
+				}
+				if (networkOutputIndex == desiredOutputIndex) correct++;
+			} else {
+				if (networkOutput[0] == desiredOutput[0]) correct++;
 			}
-			if (check == networkOutput.length) {
-				correct++;
-			}
+			
 		}
 		accuracy = iterations * (1-(correct/total));
 		return accuracy;
 	}
 	
-	public BackPropagation getLearningRule(int iterations, double learningRate, double maxError) { //Get the learning rule for the network
-		BackPropagation learningRule = new BackPropagation();
+	public BackPropagation getLearningRule(int iterations, double learningRate, double maxError, double momentum) { //Get the learning rule for the network
+		MomentumBackpropagation learningRule = new MomentumBackpropagation();
 		learningRule.setLearningRate(learningRate);
 		learningRule.setMaxIterations(iterations);
 		learningRule.setMaxError(maxError);
+		learningRule.setMomentum(momentum);
 		return learningRule;
 	}
 	

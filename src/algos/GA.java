@@ -4,6 +4,7 @@ import conversions.GridToString;
 import conversions.RandomString;
 import conversions.StringToGrid;
 import neuralNetwork.Network;
+import problems.Problem;
 import readers.*;
 
 import java.util.ArrayList;
@@ -17,34 +18,34 @@ public class GA {
 	private final double BREEDING_SIZE = 0.2;
 	private final double PASS_OVER = 0.1;
 	private final int NUMBER_OF_TOURNEMENTS = 10;
-	private final double MUTATION_RATE = 0.2;
+	private final double MUTATION_RATE = 0.1;
 	
 	private int max_neurons;
 	private int num_ins;
 	private int num_outs;
 	
-	private final int NUM_GENS = 20;
+	private final int NUM_GENS = 10;
 	
-	private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
-	private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,7);
+	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+	//private Member baseMember = new Member(BASE_LAYOUT,0.0,7);
 	
 	//private final int[] BASE_LAYOUT = {1,1,1,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,1};
-	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,6);
+	//private Member baseMember = new Member(BASE_LAYOUT,0.0,6);
 	
 	//private final int[] BASE_LAYOUT = {1,1,0,1,1,0,0,0,1,0,0,1};
-	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,5);
+	//private Member baseMember = new Member(BASE_LAYOUT,0.0,5);
 	
-	//private final int[] BASE_LAYOUT = {1,1,1,1,0,1};
-	//private GA_Member baseMember = new GA_Member(BASE_LAYOUT,0.0,4);
+	private final int[] BASE_LAYOUT = {1,1,1,1,0,1};
+	private Member baseMember = new Member(BASE_LAYOUT,0.0,4);
 	
-	private GA_Member[] population;
-	private GA_Member[] breeding;
-	private GA_Member[] newpop;
+	private Member[] population;
+	private Member[] breeding;
+	private Member[] newpop;
 	private RandomString randStr = new RandomString();
 	private GridToString G2S = new GridToString();
 	private StringToGrid S2G = new StringToGrid();
 	
-	private GA_Member[] bestMembers = new GA_Member[NUM_GENS];
+	private Member[] bestMembers = new Member[NUM_GENS];
 	
 	private String problem;
 	
@@ -53,30 +54,35 @@ public class GA {
 	private int iterations = 0;
 	private double error = 0;
 	private double learningRate = 0;
+	private double momentum = 0;
 	
-	public GA(int pop_size, int inputs, int outputs, String problem) {
-		this.problem = problem;
+	public GA(int pop_size, Problem problem) {
+		this.problem = problem.getProblem();
 		this.pop_size = pop_size;
-		population =  new GA_Member[pop_size];
-		newpop = new GA_Member[pop_size];
-		breeding = new GA_Member[(int) (pop_size * BREEDING_SIZE)];
-		num_ins = inputs;
-		num_outs = outputs;
-		max_neurons = inputs*2; //max hidden neurons = two times the number of inputs
+		population =  new Member[pop_size];
+		newpop = new Member[pop_size];
+		breeding = new Member[(int) (pop_size * BREEDING_SIZE)];
+		num_ins = problem.getInputs();
+		num_outs = problem.getOutputs();
+		momentum = problem.getMomentum();
+		max_neurons = num_ins*2; //max hidden neurons = two times the number of inputs
 		
 		trainingSet = new DataSet(num_ins, num_outs);
 		testSet = new DataSet(num_ins, num_outs);
-		if (problem.equals("XOR")) {
+		if (this.problem.equals("XOR")) {
 			System.out.println("xor");
 			trainingSet.addRow(new DataSetRow(new double[]{0, 0}, new double[]{0}));
 			trainingSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
 			trainingSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
 			trainingSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
-			testSet = trainingSet;
-			iterations = 2000;
-			error = 0.01;
-			learningRate = 0.2;
-		} else if (problem.equals("HORSE")) {
+			testSet.addRow(new DataSetRow(new double[]{0, 0}, new double[]{0}));
+			testSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
+			testSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
+			testSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
+			iterations = problem.getIterations();
+			error = problem.getError();
+			learningRate = problem.getLearningRate();
+		} else if (this.problem.equals("HORSE")) {
 			System.out.println("horse");
 			HORSE_Reader reader = new HORSE_Reader();
 			double[][][] dataset = reader.Run();
@@ -89,10 +95,10 @@ public class GA {
 					trainingSet.addRow(new DataSetRow(data[i], labels[i]));
 				}
 			}
-			iterations = 1000;
-			error = 1;
-			learningRate = 0.2;
-		} else if (problem.equals("MNIST")) {
+			iterations = problem.getIterations();
+			error = problem.getError();
+			learningRate = problem.getLearningRate();
+		} else if (this.problem.equals("MNIST")) {
 			System.out.println("MNIST");
 			MNIST_Reader reader = new MNIST_Reader();
 			double[][][] dataset = reader.Run("train");
@@ -107,17 +113,17 @@ public class GA {
 			for (int i = 0; i < data.length; i++) {
 				testSet.addRow(new DataSetRow(data[i], labels[i]));
 			}
-			iterations = 1;
-			error = 1;
-			learningRate = 0.1;
+			iterations = problem.getIterations();
+			error = problem.getError();
+			learningRate = problem.getLearningRate();
 		}
 		for (int i = 0; i < pop_size; i++) {
 			double randomDouble = Math.random();
 			randomDouble = randomDouble * (max_neurons + 1);
 			int hidden_neurons = (int) randomDouble;
-			int num_neurons = inputs + outputs + hidden_neurons;
-			population[i] = new GA_Member(randStr.genRanString(inputs, outputs, num_neurons),0.0,num_neurons);
-			//population[i] = new GA_Member(new int[]{1,1,1,1,0,1},0.0,4);
+			int num_neurons = num_ins + num_outs + hidden_neurons;
+			population[i] = new Member(randStr.genRanString(num_ins, num_outs, num_neurons),0.0,num_neurons);
+			//population[i] = new Member(new int[]{1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},0.0,7);
 		}
 	}
 	
@@ -126,7 +132,7 @@ public class GA {
 			long start = System.nanoTime();
 			System.out.println("Gen " + x);
 			System.out.println("Training members");
-			IntStream.range(0,population.length).parallel().forEach((int i) -> train(population[i]));
+			IntStream.range(0,population.length).forEach((int i) -> train(population[i],i));
 			population = sortCollection(population);
 			bestMembers[x] = population[0];
 			getBreedingSet();
@@ -139,8 +145,9 @@ public class GA {
 			System.out.println("gen " + x + " took " + (System.nanoTime() - start)/1000000000 + "s");
 		}
 		System.out.println();
-		train(baseMember);
-		GA_Member bestMember = bestMembers[0];
+		train(baseMember, -1);
+		bestMembers = sortCollection(bestMembers);
+		Member bestMember = bestMembers[0];
 		System.out.println("Ideal had fitness " + baseMember.getFitness());
 		for (int gene : baseMember.getGene()) {
 			System.out.print(gene + " ");
@@ -178,24 +185,29 @@ public class GA {
 		System.out.println();
 	}
 	
-	public void train(GA_Member member) {
-		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem);
+	public void train(Member member, int i) {
+		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem,momentum);
 		double mean = network.trainNetwork(trainingSet);
 		double accuracy = network.testNetwork(testSet);
 		member.setFitness(mean + accuracy);
+		System.out.println("member " + i);
+		System.out.println("mean " + mean);
+		System.out.println("accuracy " + accuracy);
+		System.out.println("fitness calc " + (mean+accuracy));
+		System.out.println("fitness stored " + member.getFitness());
 	}
 	
 	public void breed(int i) {
-		GA_Member parent1 = breeding[(int) (Math.random() * breeding.length)];
-		GA_Member parent2 = breeding[(int) (Math.random() * breeding.length)];
-		GA_Member[] parents = {parent1,parent2};
-		GA_Member[] children = crossover(parents);
+		Member parent1 = breeding[(int) (Math.random() * breeding.length)];
+		Member parent2 = breeding[(int) (Math.random() * breeding.length)];
+		Member[] parents = {parent1,parent2};
+		Member[] children = crossover(parents);
 		newpop[i] = children[0];
 		newpop[i+1] = children[1];
 	}
 	
 	public void getBreedingSet() {
-		GA_Member[][] tournaments = new GA_Member[NUMBER_OF_TOURNEMENTS][pop_size/NUMBER_OF_TOURNEMENTS];
+		Member[][] tournaments = new Member[NUMBER_OF_TOURNEMENTS][pop_size/NUMBER_OF_TOURNEMENTS];
 		ArrayList<Integer> members = new ArrayList<Integer>();
 		for (int i = 0; i < pop_size; i++) {
 			members.add(i);
@@ -203,13 +215,13 @@ public class GA {
 		for (int i = 0; i < pop_size/NUMBER_OF_TOURNEMENTS; i++) {
 			for (int j = 0; j < NUMBER_OF_TOURNEMENTS; j++) {
 				int memberPos = (int) Math.random() * members.size();
-				GA_Member member = population[members.get(memberPos)];
+				Member member = population[members.get(memberPos)];
 				members.remove(memberPos);
 				tournaments[j][i] = member;
 			}
 		}
 		int ptr = 0;
-		for (GA_Member[] tournament : tournaments) {
+		for (Member[] tournament : tournaments) {
 			tournament = sortCollection(tournament);
 			for (int i = 0; i < tournament.length * BREEDING_SIZE; i++) {
 				breeding[ptr] = tournament[i];
@@ -218,8 +230,8 @@ public class GA {
 		}
 	}
 	
-	public GA_Member[] crossover(GA_Member[] parents) {
-		GA_Member[] children = new GA_Member[2];
+	public Member[] crossover(Member[] parents) {
+		Member[] children = new Member[2];
 		int[] gene0 = parents[0].getGene();
 		int[] gene1 = parents[1].getGene();
 		int[] child0 = new int[gene0.length];
@@ -387,13 +399,13 @@ public class GA {
 				a++;
 			}
 		}
-		children[0] = new GA_Member(child0, 0.0, child0_neurons);
-		children[1] = new GA_Member(child1, 0.0, child1_neurons);
+		children[0] = new Member(child0, 0.0, child0_neurons);
+		children[1] = new Member(child1, 0.0, child1_neurons);
 		return children;
 	}
 	
 	public void printPop() {
-		for (GA_Member member : population) {
+		for (Member member : population) {
 			System.out.print(member.getNeurons() + " ");
 			for (int gene : member.getGene()) {
 				System.out.print(gene + " ");
@@ -402,11 +414,11 @@ public class GA {
 		}
 	}
 	
-	public GA_Member[] sortCollection(GA_Member[] collection) {
+	public Member[] sortCollection(Member[] collection) {
 		for (int i = 1; i < collection.length; i++) {
 			for (int j = 0; j < collection.length - i; j++) {
 				if (collection[j].getFitness() > collection[j+1].getFitness()) {
-					GA_Member tmp = collection[j];
+					Member tmp = collection[j];
 					collection[j] = collection[j+1];
 					collection[j+1] = tmp;
 				}
