@@ -9,6 +9,7 @@ public class MNIST implements Problem {
 	private final double ERROR = 0.01;
 	private final double LEARNING_RATE = 0.1;
 	private final double MOMENTUM = 0.1;
+	private final int POP = 12;
 
 
 	@Override
@@ -44,6 +45,23 @@ public class MNIST implements Problem {
 	@Override
 	public double getMomentum() {
 		return MOMENTUM;
+	}
+
+	@Override
+	public int[] getBaseMember() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getBaseMemberNeurons() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	@Override
+	public int getPop() {
+		return POP;
 	}
 
 }

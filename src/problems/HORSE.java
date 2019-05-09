@@ -5,10 +5,11 @@ public class HORSE implements Problem {
 	private final int NUM_INPUTS = 20;
 	private final int NUM_OUTPUTS = 3;
 	private final String PROBLEM_TYPE = "HORSE";
-	private final int ITERATIONS = 2000;
-	private final double ERROR = 0.1;
+	private final int ITERATIONS = 1000;
+	private final double ERROR = 0.2;
 	private final double LEARNING_RATE = 0.1;
-	private final double MOMENTUM = 0.5;
+	private final double MOMENTUM = 0.3;
+	private final int POP = 10;
 
 
 	@Override
@@ -56,6 +57,11 @@ public class HORSE implements Problem {
 	public int getBaseMemberNeurons() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	@Override
+	public int getPop() {
+		return POP;
 	}
 
 }

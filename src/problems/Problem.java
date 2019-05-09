@@ -11,4 +11,5 @@ public interface Problem {
 	public double getMomentum();
 	public int[] getBaseMember();
 	public int getBaseMemberNeurons();
+	public int getPop();
 }

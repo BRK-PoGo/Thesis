@@ -108,7 +108,6 @@ public class GA {
 			int hidden_neurons = (int) randomDouble;
 			int num_neurons = num_ins + num_outs + hidden_neurons;
 			population[i] = new Member(randStr.genRanString(num_ins, num_outs, num_neurons),0.0,num_neurons);
-			//population[i] = new Member(new int[]{1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},0.0,7);
 		}
 	}
 	
@@ -117,7 +116,7 @@ public class GA {
 			long start = System.nanoTime();
 			System.out.println("Gen " + x);
 			System.out.println("Training members");
-			IntStream.range(0,population.length).parallel().forEach((int i) -> train(population[i],i));
+			IntStream.range(0,population.length).forEach((int i) -> train(population[i],i));
 			population = sortCollection(population);
 			bestMembers[x] = population[0];
 			getBreedingSet();
@@ -130,14 +129,14 @@ public class GA {
 			System.out.println("gen " + x + " took " + (System.nanoTime() - start)/1000000000 + "s");
 		}
 		System.out.println();
-		train(baseMember, -1);
+		//train(baseMember, -1);
 		bestMembers = sortCollection(bestMembers);
 		Member bestMember = bestMembers[0];
-		System.out.println("Ideal had fitness " + baseMember.getFitness());
-		for (int gene : baseMember.getGene()) {
-			System.out.print(gene + " ");
-		}
-		System.out.println();
+		//System.out.println("Ideal had fitness " + baseMember.getFitness());
+		//for (int gene : baseMember.getGene()) {
+		//	System.out.print(gene + " ");
+		//}
+		//System.out.println();
 		for (int i = 0; i < NUM_GENS; i++) {
 			if (bestMembers[i].getFitness() < bestMember.getFitness()) bestMember = bestMembers[i];
 			System.out.println("Gen " + i + " best had fitness " + bestMembers[i].getFitness());
@@ -171,6 +170,7 @@ public class GA {
 	}
 	
 	public void train(Member member, int i) {
+		System.out.println("member " + i);
 		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem,momentum);
 		double mean = network.trainNetwork(trainingSet);
 		double accuracy = network.testNetwork(testSet);
@@ -221,6 +221,7 @@ public class GA {
 		int minLength = Math.min(gene0.length, gene1.length);
 		double crossover_tmp = Math.random() * minLength;
 		int crossover = (int) crossover_tmp;
+		
 		for (int i = 0; i < crossover; i++) {
 			child0[i] = gene1[i];
 			child1[i] = gene0[i];
@@ -231,35 +232,14 @@ public class GA {
 		for (int i = crossover; i < gene1.length; i++) {
 			child1[i] = gene1[i];
 		}
-		//Mutation of for adding or removing connections or adding neurons
+		
+		//Mutation of for adding or removing connections
 		for (int i = 0; i < child0.length; i++) {
 			if (Math.random() < MUTATION_RATE) {
 				if (child0[i] == 0) {
 					child0[i] = 1;
-				} else {
-					if (Math.random() < 0.5) {
+				} else if (child0[i] == 1){
 						child0[i] = 0;
-					} else {
-						if (child0_neurons < num_ins + num_outs + max_neurons) {
-							int[][] grid0 = S2G.getGrid(num_ins, num_outs, child0_neurons, child0);
-							int from = (int) i / (child0_neurons-num_ins);
-							int to = i % (child0_neurons-num_ins) + num_ins;
-							int[][] grid0_new = new int[child0_neurons + 1][child0_neurons + 1];
-							for (int x = 0; x < child0_neurons; x++) {
-								for (int y = 0; y < child0_neurons - num_outs; y++) {
-									grid0_new[x][y] = grid0[x][y];
-								}
-							}
-							grid0_new[from][to] = 0;
-							for (int x = 0; x < child0_neurons; x++) {
-								grid0_new[x][child0_neurons] = grid0[x][child0_neurons - 1];
-							}
-							grid0_new[from][child0_neurons - num_outs] = 1;
-							grid0_new[child0_neurons - num_outs][to] = 1;
-							child0_neurons++;
-							child0 = G2S.getString(num_ins, num_outs, child0_neurons, grid0_new);
-						}
-					}
 				}
 			}
 		}
@@ -267,33 +247,60 @@ public class GA {
 			if (Math.random() < MUTATION_RATE) {
 				if (child1[i] == 0) {
 					child1[i] = 1;
-				} else {
-					if (Math.random() < 0.5) {
-						child1[i] = 0;
-					} else {
-						if (child1_neurons < num_ins + num_outs + max_neurons) {
-							int[][] grid1 = S2G.getGrid(num_ins, num_outs, child1_neurons, child1);
-							int from = (int) i / (child1_neurons-num_ins);
-							int to = i % (child1_neurons-num_ins) + num_ins;
-							int[][] grid1_new = new int[child1_neurons + 1][child1_neurons + 1];
-							for (int x = 0; x < child1_neurons; x++) {
-								for (int y = 0; y < child1_neurons - num_outs; y++) {
-									grid1_new[x][y] = grid1[x][y];
-								}
-							}
-							grid1_new[from][to] = 0;
-							for (int x = 0; x < child1_neurons; x++) {
-								grid1_new[x][child1_neurons] = grid1[x][child1_neurons - 1];
-							}
-							grid1_new[from][child1_neurons - num_outs] = 1;
-							grid1_new[child1_neurons - num_outs][to] = 1;
-							child1_neurons++;
-							child1 = G2S.getString(num_ins, num_outs, child1_neurons, grid1_new);
-						}
-					}
+				} else if (child1[i] == 1){
+					child1[i] = 0;
 				}
 			}
 		}
+		
+		//Mutation of for adding neurons
+		for (int i = 0; i < child0.length; i++) {
+			if (Math.random() < MUTATION_RATE) {
+				if (child0_neurons < num_ins + num_outs + max_neurons && child0[i] == 1) {
+					int[][] grid0 = S2G.getGrid(num_ins, num_outs, child0_neurons, child0);
+					int from = (int) i / (child0_neurons-num_ins);
+					int to = i % (child0_neurons-num_ins) + num_ins;
+					int[][] grid0_new = new int[child0_neurons + 1][child0_neurons + 1];
+					for (int x = 0; x < child0_neurons; x++) {
+						for (int y = 0; y < child0_neurons - num_outs; y++) {
+							grid0_new[x][y] = grid0[x][y];
+						}
+					}
+					grid0_new[from][to] = 0;
+					for (int x = 0; x < child0_neurons; x++) {
+						grid0_new[x][child0_neurons] = grid0[x][child0_neurons - 1];
+					}
+					grid0_new[from][child0_neurons - num_outs] = 1;
+					grid0_new[child0_neurons - num_outs][to] = 1;
+					child0_neurons++;
+					child0 = G2S.getString(num_ins, num_outs, child0_neurons, grid0_new);
+				}
+			}
+		}
+		for (int i = 0; i < child1.length; i++) {
+			if (Math.random() < MUTATION_RATE) {
+				if (child1_neurons < num_ins + num_outs + max_neurons && child1[i] == 1) {
+					int[][] grid1 = S2G.getGrid(num_ins, num_outs, child1_neurons, child1);
+					int from = (int) i / (child1_neurons-num_ins);
+					int to = i % (child1_neurons-num_ins) + num_ins;
+					int[][] grid1_new = new int[child1_neurons + 1][child1_neurons + 1];
+					for (int x = 0; x < child1_neurons; x++) {
+						for (int y = 0; y < child1_neurons - num_outs; y++) {
+							grid1_new[x][y] = grid1[x][y];
+						}
+					}
+					grid1_new[from][to] = 0;
+					for (int x = 0; x < child1_neurons; x++) {
+						grid1_new[x][child1_neurons] = grid1[x][child1_neurons - 1];
+					}
+					grid1_new[from][child1_neurons - num_outs] = 1;
+					grid1_new[child1_neurons - num_outs][to] = 1;
+					child1_neurons++;
+					child1 = G2S.getString(num_ins, num_outs, child1_neurons, grid1_new);
+				}
+			}
+		}
+		
 		//Mutation for removing neurons
 		int a = num_ins;
 		while(a < child0_neurons - num_outs) {
@@ -379,6 +386,7 @@ public class GA {
 				a++;
 			}
 		}
+		
 		children[0] = new Member(child0, 0.0, child0_neurons);
 		children[1] = new Member(child1, 0.0, child1_neurons);
 		return children;
