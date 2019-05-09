@@ -21,7 +21,7 @@ public class EP {
 	private int num_ins;
 	private int num_outs;
 	
-	private final int NUM_GENS = 50;
+	private final int NUM_GENS = 10;
 	
 	private Member baseMember;
 	
@@ -44,6 +44,10 @@ public class EP {
 	private double momentum = 0;
 	
 	public EP(int pop_size, Problem problem) {
+		iterations = problem.getIterations();
+		error = problem.getError();
+		learningRate = problem.getLearningRate();
+		momentum = problem.getMomentum();
 		baseMember = new Member(problem.getBaseMember(),0.0,problem.getBaseMemberNeurons());
 		this.problem = problem.getProblem();
 		this.pop_size = pop_size;
@@ -51,7 +55,6 @@ public class EP {
 		newpop = new Member[pop_size];
 		num_ins = problem.getInputs();
 		num_outs = problem.getOutputs();
-		momentum = problem.getMomentum();
 		max_neurons = num_ins*2; //max hidden neurons = two times the number of inputs
 		
 		trainingSet = new DataSet(num_ins, num_outs);
@@ -66,9 +69,6 @@ public class EP {
 			testSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
 			testSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
 			testSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
-			iterations = problem.getIterations();
-			error = problem.getError();
-			learningRate = problem.getLearningRate();
 		} else if (this.problem.equals("HORSE")) {
 			System.out.println("horse");
 			HORSE_Reader reader = new HORSE_Reader();
@@ -82,9 +82,6 @@ public class EP {
 					trainingSet.addRow(new DataSetRow(data[i], labels[i]));
 				}
 			}
-			iterations = problem.getIterations();
-			error = problem.getError();
-			learningRate = problem.getLearningRate();
 		} else if (this.problem.equals("MNIST")) {
 			System.out.println("MNIST");
 			MNIST_Reader reader = new MNIST_Reader();
@@ -100,15 +97,13 @@ public class EP {
 			for (int i = 0; i < data.length; i++) {
 				testSet.addRow(new DataSetRow(data[i], labels[i]));
 			}
-			iterations = problem.getIterations();
-			error = problem.getError();
-			learningRate = problem.getLearningRate();
 		}
 		for (int i = 0; i < pop_size; i++) {
 			double randomDouble = Math.random();
 			randomDouble = randomDouble * (max_neurons + 1);
-			int hidden_neurons = (int) randomDouble;
-			int num_neurons = num_ins + num_outs + hidden_neurons;
+			//int hidden_neurons = (int) randomDouble;
+			//int num_neurons = num_ins + num_outs + hidden_neurons;
+			int num_neurons = num_ins + num_outs;
 			population[i] = new Member(randStr.genRanString(num_ins, num_outs, num_neurons),0.0,num_neurons);
 			//population[i] = new Member(new int[]{1,1,1,1,0,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},0.0,7);
 		}

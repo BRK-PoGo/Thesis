@@ -7,8 +7,8 @@ public class HORSE implements Problem {
 	private final String PROBLEM_TYPE = "HORSE";
 	private final int ITERATIONS = 2000;
 	private final double ERROR = 0.1;
-	private final double LEARNING_RATE = 0.5;
-	private final double MOMENTUM = 0.1;
+	private final double LEARNING_RATE = 0.1;
+	private final double MOMENTUM = 0.5;
 
 
 	@Override

@@ -18,7 +18,7 @@ public class GA {
 	private final double BREEDING_SIZE = 0.2;
 	private final double PASS_OVER = 0.1;
 	private final int NUMBER_OF_TOURNEMENTS = 10;
-	private final double MUTATION_RATE = 0.1;
+	private final double MUTATION_RATE = 0.01;
 	
 	private int max_neurons;
 	private int num_ins;
@@ -47,6 +47,10 @@ public class GA {
 	private double momentum = 0;
 	
 	public GA(int pop_size, Problem problem) {
+		iterations = problem.getIterations();
+		error = problem.getError();
+		learningRate = problem.getLearningRate();
+		momentum = problem.getMomentum();
 		baseMember = new Member(problem.getBaseMember(),0.0,problem.getBaseMemberNeurons());
 		this.problem = problem.getProblem();
 		this.pop_size = pop_size;
@@ -55,7 +59,6 @@ public class GA {
 		breeding = new Member[(int) (pop_size * BREEDING_SIZE)];
 		num_ins = problem.getInputs();
 		num_outs = problem.getOutputs();
-		momentum = problem.getMomentum();
 		max_neurons = num_ins*2; //max hidden neurons = two times the number of inputs
 		
 		trainingSet = new DataSet(num_ins, num_outs);
@@ -70,9 +73,6 @@ public class GA {
 			testSet.addRow(new DataSetRow(new double[]{0, 1}, new double[]{1}));
 			testSet.addRow(new DataSetRow(new double[]{1, 0}, new double[]{1}));
 			testSet.addRow(new DataSetRow(new double[]{1, 1}, new double[]{0}));
-			iterations = problem.getIterations();
-			error = problem.getError();
-			learningRate = problem.getLearningRate();
 		} else if (this.problem.equals("HORSE")) {
 			System.out.println("horse");
 			HORSE_Reader reader = new HORSE_Reader();
@@ -86,9 +86,6 @@ public class GA {
 					trainingSet.addRow(new DataSetRow(data[i], labels[i]));
 				}
 			}
-			iterations = problem.getIterations();
-			error = problem.getError();
-			learningRate = problem.getLearningRate();
 		} else if (this.problem.equals("MNIST")) {
 			System.out.println("MNIST");
 			MNIST_Reader reader = new MNIST_Reader();
@@ -104,9 +101,6 @@ public class GA {
 			for (int i = 0; i < data.length; i++) {
 				testSet.addRow(new DataSetRow(data[i], labels[i]));
 			}
-			iterations = problem.getIterations();
-			error = problem.getError();
-			learningRate = problem.getLearningRate();
 		}
 		for (int i = 0; i < pop_size; i++) {
 			double randomDouble = Math.random();
