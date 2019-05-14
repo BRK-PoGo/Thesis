@@ -6,10 +6,10 @@ public class HORSE implements Problem {
 	private final int NUM_OUTPUTS = 3;
 	private final String PROBLEM_TYPE = "HORSE";
 	private final int ITERATIONS = 1000;
-	private final double ERROR = 0.2;
+	private final double ERROR = 0.25;
 	private final double LEARNING_RATE = 0.1;
 	private final double MOMENTUM = 0.3;
-	private final int POP = 10;
+	private final int POP = 1000;
 
 
 	@Override

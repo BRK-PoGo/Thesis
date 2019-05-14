@@ -10,8 +10,8 @@ public class Run {
 		//Problem problem = new MNIST();
 		Problem problem = new HORSE();
 		int pop = problem.getPop();
-		//GA algo = new GA(pop, problem);
-		EP algo = new EP(pop, problem);
+		GA algo = new GA(pop, problem);
+		//EP algo = new EP(pop, problem);
 		long start = System.nanoTime();
 		algo.testNetworks();
 		System.out.println("took " + (System.nanoTime() - start)/1000000000 + "s");

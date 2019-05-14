@@ -5,6 +5,8 @@ public class Member {
 	private int[] gene;
 	private double fitness;
 	private int neurons;
+	private double iterations;
+	private double accuracy;
 	
 	public Member(int[] gene, double fitness, int neurons) {
 		this.gene = gene;
@@ -24,6 +26,14 @@ public class Member {
 		this.neurons = neurons;
 	}
 	
+	public void setIterations(double iterations) {
+		this.iterations = iterations;
+	}
+	
+	public void setAccuracy(double accuracy) {
+		this.accuracy = accuracy;
+	}
+	
 	public int[] getGene() {
 		return gene;
 	}
@@ -34,5 +44,13 @@ public class Member {
 	
 	public int getNeurons() {
 		return neurons;
+	}
+	
+	public double getIterations() {
+		return iterations;
+	}
+	
+	public double getAccuracy() {
+		return accuracy;
 	}
 }

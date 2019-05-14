@@ -11,7 +11,7 @@ public class XOR implements Problem {
 	private final double MOMENTUM = 0.5;
 	private final int[] BASE_MEMBER = {1,1,1,1,0,1};
 	private final int BASE_MEMBER_NEURON = 4;
-	private final int POP = 100;
+	private final int POP = 1000;
 
 	@Override
 	public int getInputs() {

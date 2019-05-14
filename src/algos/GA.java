@@ -18,7 +18,7 @@ public class GA {
 	private final double BREEDING_SIZE = 0.2;
 	private final double PASS_OVER = 0.1;
 	private final int NUMBER_OF_TOURNEMENTS = 10;
-	private final double MUTATION_RATE = 0.01;
+	private final double MUTATION_RATE = 0.1;
 	
 	private int max_neurons;
 	private int num_ins;
@@ -107,6 +107,7 @@ public class GA {
 			randomDouble = randomDouble * (max_neurons + 1);
 			int hidden_neurons = (int) randomDouble;
 			int num_neurons = num_ins + num_outs + hidden_neurons;
+			//int num_neurons = num_ins + num_outs;
 			population[i] = new Member(randStr.genRanString(num_ins, num_outs, num_neurons),0.0,num_neurons);
 		}
 	}
@@ -116,7 +117,7 @@ public class GA {
 			long start = System.nanoTime();
 			System.out.println("Gen " + x);
 			System.out.println("Training members");
-			IntStream.range(0,population.length).forEach((int i) -> train(population[i],i));
+			IntStream.range(0,population.length).parallel().forEach((int i) -> train(population[i],i));
 			population = sortCollection(population);
 			bestMembers[x] = population[0];
 			getBreedingSet();
@@ -140,12 +141,18 @@ public class GA {
 		for (int i = 0; i < NUM_GENS; i++) {
 			if (bestMembers[i].getFitness() < bestMember.getFitness()) bestMember = bestMembers[i];
 			System.out.println("Gen " + i + " best had fitness " + bestMembers[i].getFitness());
+			System.out.println("Gen " + i + " best had " + bestMembers[i].getNeurons() + " neurons");
+			System.out.println("Gen " + i + " best had iterations " + bestMembers[i].getIterations());
+			System.out.println("Gen " + i + " best had accuracy " + (100-(bestMembers[i].getAccuracy()/iterations)*100) + "%");
+			/*
 			for (int gene : bestMembers[i].getGene()) {
 				System.out.print(gene + " ");
 			}
+			*/
 			System.out.println();
 		}
 		System.out.println();
+		/*
 		System.out.println("Input neurons:");
 		for (int i = 0; i < num_ins; i++) {
 			System.out.println(i);
@@ -155,6 +162,11 @@ public class GA {
 			System.out.println(i);
 		}
 		System.out.println();
+		*/
+		System.out.println("Best member had fitness " + bestMember.getFitness());
+		System.out.println("Best member had iterations " + bestMember.getIterations());
+		System.out.println("Best member had accuracy " + (100-(bestMember.getAccuracy()/iterations)*100) + "%");
+		/*
 		System.out.println("Best config");
 		System.out.println();
 		int[][] bestGrid = S2G.getGrid(num_ins, num_outs, bestMember.getNeurons(), bestMember.getGene());
@@ -167,13 +179,16 @@ public class GA {
 			System.out.println();
 		}
 		System.out.println();
+		*/
 	}
 	
 	public void train(Member member, int i) {
-		System.out.println("member " + i);
+		//System.out.println("member " + i);
 		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem,momentum);
 		double mean = network.trainNetwork(trainingSet);
+		member.setIterations(mean);
 		double accuracy = network.testNetwork(testSet);
+		member.setAccuracy(accuracy);
 		member.setFitness(mean + accuracy);
 	}
 	

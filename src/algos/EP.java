@@ -21,7 +21,7 @@ public class EP {
 	private int num_ins;
 	private int num_outs;
 	
-	private final int NUM_GENS = 10;
+	private final int NUM_GENS = 50;
 	
 	private Member baseMember;
 	
@@ -137,12 +137,17 @@ public class EP {
 		for (int i = 0; i < NUM_GENS; i++) {
 			if (bestMembers[i].getFitness() < bestMember.getFitness()) bestMember = bestMembers[i];
 			System.out.println("Gen " + i + " best had fitness " + bestMembers[i].getFitness());
+			System.out.println("Gen " + i + " best had iterations " + bestMembers[i].getIterations());
+			System.out.println("Gen " + i + " best had accuracy " + (100-(bestMembers[i].getAccuracy()/iterations)*100) + "%");
+			/*
 			for (int gene : bestMembers[i].getGene()) {
 				System.out.print(gene + " ");
 			}
+			*/
 			System.out.println();
 		}
 		System.out.println();
+		/*
 		System.out.println("Input neurons:");
 		for (int i = 0; i < num_ins; i++) {
 			System.out.println(i);
@@ -152,6 +157,11 @@ public class EP {
 			System.out.println(i);
 		}
 		System.out.println();
+		*/
+		System.out.println("Best member had fitness " + bestMember.getFitness());
+		System.out.println("Best member had iterations " + bestMember.getIterations());
+		System.out.println("Best member had accuracy " + (100-(bestMember.getAccuracy()/iterations)*100) + "%");
+		/*
 		System.out.println("Best config");
 		System.out.println();
 		int[][] bestGrid = S2G.getGrid(num_ins, num_outs, bestMember.getNeurons(), bestMember.getGene());
@@ -164,12 +174,15 @@ public class EP {
 			System.out.println();
 		}
 		System.out.println();
+		*/
 	}
 	
 	public void train(Member member, int i) {
 		Network network = new Network(num_ins, num_outs, S2G.getGrid(num_ins, num_outs, member.getNeurons(), member.getGene()),iterations,learningRate,error,problem,momentum);
 		double mean = network.trainNetwork(trainingSet);
+		member.setIterations(mean);
 		double accuracy = network.testNetwork(testSet);
+		member.setAccuracy(accuracy);
 		member.setFitness(mean + accuracy);
 	}
 	
@@ -189,6 +202,8 @@ public class EP {
 	
 	public Member crossover(Member parent) {
 		double mutationRate = getMutationRate(parent);
+		System.out.println("Parent Fitness " + parent.getFitness());
+		System.out.println("Mutation Rate " + mutationRate);
 		int[] gene = parent.getGene();
 		int[] child = new int[gene.length];
 		int child_neurons = parent.getNeurons();
