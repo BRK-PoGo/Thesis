@@ -10,6 +10,5 @@ public interface Problem {
 	public double getLearningRate();
 	public double getMomentum();
 	public int[] getBaseMember();
-	public int getBaseMemberNeurons();
 	public int getPop();
 }

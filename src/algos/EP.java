@@ -49,7 +49,7 @@ public class EP {
 		error = problem.getError();
 		learningRate = problem.getLearningRate();
 		momentum = problem.getMomentum();
-		baseMember = new Member(problem.getBaseMember(),0.0,problem.getBaseMemberNeurons());
+		//baseMember = new Member(problem.getBaseMember(),0.0,problem.getBaseMemberNeurons());
 		this.problem = problem.getProblem();
 		this.pop_size = pop_size;
 		population =  new Member[this.pop_size];
@@ -113,11 +113,17 @@ public class EP {
 	}
 	
 	public void testNetworks() {
+		double total = 0.0;
 		for (int x = 0; x < NUM_GENS; x++) {
+			double tmp_total = 0.0;
 			long start = System.nanoTime();
 			System.out.println("Gen " + x);
 			System.out.println("Training members");
 			IntStream.range(0,population.length).parallel().forEach((int i) -> train(population[i],i));
+			for (int i = 0; i < pop_size; i++) {
+				tmp_total += population[i].getFitness();
+			}
+			total += tmp_total/pop_size;
 			population = sortCollection(population);
 			bestMembers[x] = population[0];
 			System.out.println("Breeding new members");
@@ -125,6 +131,8 @@ public class EP {
 			population = newpop;
 			System.out.println("gen " + x + " took " + (System.nanoTime() - start)/1000000000 + "s");
 		}
+		System.out.println();
+		System.out.println("Algorithm had average fitness of " + total/NUM_GENS);
 		System.out.println();
 		//train(baseMember, -1);
 		bestMembers = sortCollection(bestMembers);

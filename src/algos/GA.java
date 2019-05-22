@@ -51,7 +51,7 @@ public class GA {
 		error = problem.getError();
 		learningRate = problem.getLearningRate();
 		momentum = problem.getMomentum();
-		baseMember = new Member(problem.getBaseMember(),0.0,problem.getBaseMemberNeurons());
+		//baseMember = new Member(problem.getBaseMember(),0.0,problem.getBaseMemberNeurons());
 		this.problem = problem.getProblem();
 		this.pop_size = pop_size;
 		population =  new Member[pop_size];
@@ -103,21 +103,27 @@ public class GA {
 			}
 		}
 		for (int i = 0; i < pop_size; i++) {
-			double randomDouble = Math.random();
-			randomDouble = randomDouble * (max_neurons + 1);
-			int hidden_neurons = (int) randomDouble;
-			int num_neurons = num_ins + num_outs + hidden_neurons;
-			//int num_neurons = num_ins + num_outs;
+			//double randomDouble = Math.random();
+			//randomDouble = randomDouble * (max_neurons + 1);
+			//int hidden_neurons = (int) randomDouble;
+			//int num_neurons = num_ins + num_outs + hidden_neurons;
+			int num_neurons = num_ins + num_outs;
 			population[i] = new Member(randStr.genRanString(num_ins, num_outs, num_neurons),0.0,num_neurons);
 		}
 	}
 	
 	public void testNetworks() {
+		double total = 0.0;
 		for (int x = 0; x < NUM_GENS; x++) {
+			double tmp_total = 0.0;
 			long start = System.nanoTime();
 			System.out.println("Gen " + x);
 			System.out.println("Training members");
 			IntStream.range(0,population.length).parallel().forEach((int i) -> train(population[i],i));
+			for (int i = 0; i < pop_size; i++) {
+				tmp_total += population[i].getFitness();
+			}
+			total += tmp_total/pop_size;
 			population = sortCollection(population);
 			bestMembers[x] = population[0];
 			getBreedingSet();
@@ -129,6 +135,9 @@ public class GA {
 			population = newpop;
 			System.out.println("gen " + x + " took " + (System.nanoTime() - start)/1000000000 + "s");
 		}
+		System.out.println();
+		
+		System.out.println("Algorithm had average fitness of " + total/NUM_GENS);
 		System.out.println();
 		//train(baseMember, -1);
 		bestMembers = sortCollection(bestMembers);
