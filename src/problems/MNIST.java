@@ -5,10 +5,11 @@ public class MNIST implements Problem {
 	private final int NUM_INPUTS = 784;
 	private final int NUM_OUTPUTS = 10;
 	private final String PROBLEM_TYPE = "MNIST";
-	private final int ITERATIONS = 1000;
-	private final double ERROR = 0.01;
+	private final int ITERATIONS = 1;
+	private final double ERROR = 0.2;
 	private final double LEARNING_RATE = 0.1;
-	private final double MOMENTUM = 0.1;
+	private final double MOMENTUM = 0.3;
+	private final int[] BASE_MEMBER = {512,256,128};
 	private final int POP = 12;
 
 
@@ -49,14 +50,7 @@ public class MNIST implements Problem {
 
 	@Override
 	public int[] getBaseMember() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getBaseMemberNeurons() {
-		// TODO Auto-generated method stub
-		return 0;
+		return BASE_MEMBER;
 	}
 	
 	@Override

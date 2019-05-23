@@ -9,6 +9,7 @@ public class HORSE implements Problem {
 	private final double ERROR = 0.25;
 	private final double LEARNING_RATE = 0.1;
 	private final double MOMENTUM = 0.3;
+	private final int[] BASE_MEMBER = {15,6};
 	private final int POP = 1000;
 
 
@@ -49,14 +50,7 @@ public class HORSE implements Problem {
 
 	@Override
 	public int[] getBaseMember() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getBaseMemberNeurons() {
-		// TODO Auto-generated method stub
-		return 0;
+		return BASE_MEMBER;
 	}
 	
 	@Override

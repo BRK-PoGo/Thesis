@@ -116,11 +116,98 @@ public class Network {
 		}
 	}
 	
+	public Network(Integer ins, Integer outs, int[]layers, double numIterations, double learningRate, double maxError, String problem, double momentum) {
+		
+		//Define parameters
+		num_ins = ins;
+		num_outs = outs;
+		iterations = numIterations;
+		List<Integer> inits = new ArrayList<Integer>();
+		inits.add(ins);
+		for (int i : layers) inits.add(i);
+		inits.add(outs);
+		
+		//Build initial network, remove initial connections and add learning rule
+		NeuronProperties props = new NeuronProperties(TransferFunctionType.SIGMOID, true);
+		network = new MultiLayerPerceptron(inits,props);
+		BackPropagation learningRule = getLearningRule(numIterations, learningRate, maxError, momentum);
+		network.setLearningRule(learningRule);
+		learningRule.setNeuralNetwork(network);
+		
+		/*
+		//Define main layer and add it
+		Layer mainLayer = new Layer();
+		network.addLayer(1, mainLayer);
+		
+		//Configure hidden neurons
+		for (int i = 0; i < num_neurons - num_ins - num_outs; i++) {
+			Neuron neuron = new Neuron();
+			neuron.setInputFunction(new WeightedSum());
+			neuron.setTransferFunction(new Sigmoid());
+			mainLayer.addNeuron(neuron);
+		}
+		
+		//Get all neurons (and store the bias one for later)
+		List<Neuron> neurons = new ArrayList<Neuron>();
+		Neuron bias = null;
+		int ctr = 1;
+		for (int i = 0; i < network.getLayersCount(); i++) {
+			for (Neuron neuron : network.getLayerAt(i).getNeurons()) {
+				if (neuron.getClass().getName().equals("org.neuroph.nnet.comp.neuron.BiasNeuron")) {
+					neuron.setLabel("bias");
+					bias = neuron;
+				} else {
+					neuron.setLabel("neuron " + ctr);
+					ctr++;
+					neurons.add(neuron);
+				}
+			}
+		}
+		
+		//Configure connections
+		for (int i = 0; i < connections.length; i++) {
+			for (int j = 0; j < connections[i].length; j++) {
+				if (connections[i][j] == 1) {
+					network.createConnection(neurons.get(i), neurons.get(j), 0);
+					paths++;
+				}
+			}
+		}
+		
+		//Configure all non-input nodes to the bias node
+		if (bias != null ) {
+			for (Neuron neuron : neurons) {
+				if (neurons.indexOf(neuron) > num_ins - 1) {
+					network.createConnection(bias, neuron, 0);
+					paths++;
+				}
+			}
+		}
+		*/
+		//Add initial weights
+		network.randomizeWeights(MIN_INIT_WEIGHT, MAX_INIT_WEIGHT);
+		
+		//Configure output neurons
+		if (problem.equals("XOR")) { //If XOR problem, use step output
+			Step step = new Step();
+			step.setYHigh(1.0);
+			step.setYLow(0.0);
+			network.getLayerAt(network.getLayersCount()-1).getNeuronAt(0).setTransferFunction(step);
+			network.getLayerAt(network.getLayersCount()-1).getNeuronAt(0).setInputFunction(new WeightedSum());
+		} else { //If MNIST or horse, use sigmoid outputs
+			for (Neuron neuron : network.getLayerAt(network.getLayersCount()-1).getNeurons()) {
+				neuron.setTransferFunction(new Sigmoid());
+				neuron.setInputFunction(new WeightedSum());
+			}
+		}
+		
+	}
+	
 	public double trainNetwork(DataSet trainingSet) {
 		double times = 100;
 		double total = 0;
 		for (int i = 0; i < times; i++) {
-			network.setWeights(getWeights());
+			network.randomizeWeights(MIN_INIT_WEIGHT, MAX_INIT_WEIGHT);
 			network.learn(trainingSet);
 			total += network.getLearningRule().getCurrentIteration();
 		}
