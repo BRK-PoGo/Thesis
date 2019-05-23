@@ -6,9 +6,9 @@ import problems.*;
 public class Run {
 
 	public static void main(String[] args) {
-		//Problem problem = new XOR();
+		Problem problem = new XOR();
 		//Problem problem = new MNIST();
-		Problem problem = new HORSE();
+		//Problem problem = new HORSE();
 		int pop = problem.getPop();
 		GA algo = new GA(pop, problem);
 		//EP algo = new EP(pop, problem);
